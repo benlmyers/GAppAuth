@@ -38,10 +38,6 @@ public final class GAppAuth: NSObject {
   private static let KeychainPrefix   = Bundle.main.bundleIdentifier!
   private static let KeychainItemName = KeychainPrefix + "GoogleAuthorization"
   
-  public static var clientID: String = ""
-  
-  public static var redirectUri: String = ""
-  
   // MARK: - Public vars
   
   // Authorization unsuccessful, subscribe if you're interested
@@ -89,17 +85,17 @@ public final class GAppAuth: NSObject {
   /// - parameter presentingViewController: The UIViewController that starts the workflow.
   /// - parameter callback: A completion callback to be used for further processing.
   @available(iOS 8.0, *)
-  public func authorize(in presentingViewController: UIViewController, callback: ((Bool) -> Void)?) throws {
-    guard GAppAuth.redirectUri != "" else {
+  public func authorize(in presentingViewController: UIViewController, clientID: String, redirectUri: String, callback: ((Bool) -> Void)?) throws {
+    guard redirectUri != "" else {
       throw GAppAuthError.plistValueEmpty("The value for RedirectUri seems to be wrong, did you forget to set it up?")
     }
     
-    guard GAppAuth.clientID != "" else {
+    guard clientID != "" else {
       throw GAppAuthError.plistValueEmpty("The value for ClientId seems to be wrong, did you forget to set it up?")
     }
     
     let issuer = URL(string: "https://accounts.google.com")!
-    let redirectURI = URL(string: GAppAuth.redirectUri)!
+    let redirectURI = URL(string: redirectUri)!
     
     // Search for endpoints
     OIDAuthorizationService.discoverConfiguration(forIssuer: issuer) {(configuration: OIDServiceConfiguration?, error: Error?) in
@@ -110,7 +106,7 @@ public final class GAppAuth: NSObject {
       }
       
       // Create auth request
-      let request = OIDAuthorizationRequest(configuration: configuration!, clientId: GAppAuth.clientID, scopes: self.scopes, redirectURL: redirectURI, responseType: OIDResponseTypeCode, additionalParameters: nil)
+      let request = OIDAuthorizationRequest(configuration: configuration!, clientId: clientID, scopes: self.scopes, redirectURL: redirectURI, responseType: OIDResponseTypeCode, additionalParameters: nil)
       
       // Store auth flow to be resumed after app reentry, serialize response
       self.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: presentingViewController) { authState, error in
