@@ -26,6 +26,8 @@
 @_exported import AppAuth
 @_exported import GTMAppAuth
 
+#if os(macOS)
+
 /// Wrapper class that provides convenient AppAuth functionality with Google Services.
 /// Set ClientId, RedirectUri and call respective methods where you need them.
 /// Requires dependency to GTMAppAuth, see: https://github.com/google/GTMAppAuth
@@ -248,3 +250,5 @@ extension GAppAuth: OIDAuthStateErrorDelegate {
 public enum GAppAuthError: Error {
   case plistValueEmpty(String)
 }
+
+#endif
